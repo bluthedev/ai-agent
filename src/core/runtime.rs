@@ -37,6 +37,8 @@ impl Runtime {
     }
 
     pub fn add_agent(&mut self, prompt: &str) {
+        
+        println!("{}", prompt);
         let agent = Agent::new(&self.openai_api_key, prompt);
         self.agents.push(agent);
     }
@@ -49,7 +51,11 @@ impl Runtime {
         let mut rng = rand::thread_rng();
         let selected_agent = &self.agents[rng.gen_range(0..self.agents.len())];
 
+        
+        println!("before");
         let response = selected_agent.prompt("tweet").await?;
+        
+        println!("after");
 
         match MemoryStore::add_to_memory(&mut self.memory, &response) {
             Ok(_) => println!("Response saved to memory."),

@@ -1,11 +1,15 @@
+mod characteristics;
 mod core;
 mod memory;
 mod providers;
-use core::runtime::Runtime;
+use core::{
+    instruction_builder::{self, InstructionBuilder},
+    runtime::Runtime,
+};
 extern crate dotenv;
 
 use dotenv::dotenv;
-use std::env;
+use std::{env, fs};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -18,6 +22,13 @@ async fn main() -> Result<(), anyhow::Error> {
         &env::var("TWITTER_ACCESS_TOKEN").expect("TWITTER_ACCESS_TOKEN not set"),
         &env::var("TWITTER_ACCESS_TOKEN_SECRET").expect("TWITTER_ACCESS_TOKEN_SECRET not set"),
     );
+
+    let mut instruction_builder = InstructionBuilder::new();
+    instruction_builder.build_instructions("degenspartan");
+
+    runtime.add_agent(instruction_builder.get_instructions());
+    fs::write("output.txt", instruction_builder.get_instructions())?;
+
 
     runtime.run_periodically().await?;
 

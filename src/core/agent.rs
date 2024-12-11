@@ -9,8 +9,11 @@ pub struct Agent {
 impl Agent {
     pub fn new(openai_api_key: &str, prompt: &str) -> Self {
         let openai_client = providers::openai::Client::new(openai_api_key);
-        let agent: rig::agent::Agent<providers::openai::CompletionModel> =
-            openai_client.agent("gpt-4o").preamble(prompt).build();
+        let agent: rig::agent::Agent<providers::openai::CompletionModel> = openai_client
+            .agent("chatgpt-4o-latest")
+            .preamble(prompt)
+            .temperature(1.0)
+            .build();
 
         Agent { agent }
     }

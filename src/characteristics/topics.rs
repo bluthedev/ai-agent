@@ -1,0 +1,17 @@
+use std::fs;
+use std::io;
+
+use crate::core::characteristics::Characteristic;
+
+pub struct Topics;
+
+impl Characteristic for Topics {
+    fn get_header(&self) -> String {
+        "These are the topics you should talk about.".to_string()
+    }
+
+    fn get_traits(&self, character_name: &str) -> io::Result<String> {
+        let path = format!("./characters/{}/topics_traits.txt", character_name);
+        fs::read_to_string(&path)
+    }
+}
