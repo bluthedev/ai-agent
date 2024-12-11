@@ -5,9 +5,10 @@ A re-write of [DegenSpartanAI](https://github.com/lalalune/DegenSpartanAI/tree/m
 > [!NOTE]  
 > This agent is in beta and is tested and live on this twitter. Feel free to make suggestions/commits on how it can be improved for better functionality.
 
-# Install Packages
+# How to run
+Open a powershell / terminal depending on what OS you are running and execute the following command:
 
-`cargo install`
+`cargo run`
 
 # Edit Environment Variables
 
