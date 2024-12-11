@@ -37,8 +37,6 @@ impl Runtime {
     }
 
     pub fn add_agent(&mut self, prompt: &str) {
-        
-        println!("{}", prompt);
         let agent = Agent::new(&self.openai_api_key, prompt);
         self.agents.push(agent);
     }
@@ -50,12 +48,7 @@ impl Runtime {
 
         let mut rng = rand::thread_rng();
         let selected_agent = &self.agents[rng.gen_range(0..self.agents.len())];
-
-        
-        println!("before");
         let response = selected_agent.prompt("tweet").await?;
-        
-        println!("after");
 
         match MemoryStore::add_to_memory(&mut self.memory, &response) {
             Ok(_) => println!("Response saved to memory."),
@@ -68,16 +61,8 @@ impl Runtime {
     }
 
     pub async fn run_periodically(&mut self) -> Result<(), anyhow::Error> {
-        let _ = self.run().await;
-
         loop {
-            let random_delay = rand::thread_rng().gen_range(60..=300);
-            println!(
-                "Waiting for {} seconds before running again...",
-                random_delay
-            );
-
-            sleep(Duration::from_secs(random_delay)).await;
+            sleep(Duration::from_secs(3600)).await;
 
             if let Err(e) = self.run().await {
                 eprintln!("Error running process: {}", e);

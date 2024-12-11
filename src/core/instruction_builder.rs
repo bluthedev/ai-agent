@@ -57,8 +57,6 @@ impl InstructionBuilder {
             self.add_instruction(&suffix);
         }
 
-        println!("{}", self.get_instructions());
-
         Ok(())
     }
 

@@ -2,14 +2,11 @@ mod characteristics;
 mod core;
 mod memory;
 mod providers;
-use core::{
-    instruction_builder::{self, InstructionBuilder},
-    runtime::Runtime,
-};
+use core::{instruction_builder::InstructionBuilder, runtime::Runtime};
 extern crate dotenv;
 
 use dotenv::dotenv;
-use std::{env, fs};
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -27,8 +24,6 @@ async fn main() -> Result<(), anyhow::Error> {
     instruction_builder.build_instructions("degenspartan");
 
     runtime.add_agent(instruction_builder.get_instructions());
-    fs::write("output.txt", instruction_builder.get_instructions())?;
-
 
     runtime.run_periodically().await?;
 

@@ -28,7 +28,6 @@ impl Twitter {
             .await?
             .into_data()
             .expect("this tweet should exist");
-
         println!("Tweet posted successfully with ID: {}", tweet.id);
 
         Ok(())
