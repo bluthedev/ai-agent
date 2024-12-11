@@ -14,6 +14,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let mut runtime = Runtime::new(
         &env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not set"),
+        &env::var("DISCORD_WEBHOOK_URL").expect("DISCORD_WEBHOOK_URL not set"),
         &env::var("TWITTER_CONSUMER_KEY").expect("TWITTER_CONSUMER_KEY not set"),
         &env::var("TWITTER_CONSUMER_SECRET").expect("TWITTER_CONSUMER_SECRET not set"),
         &env::var("TWITTER_ACCESS_TOKEN").expect("TWITTER_ACCESS_TOKEN not set"),

@@ -1,11 +1,16 @@
 use rand::Rng;
 use tokio::time::{sleep, Duration};
 
-use crate::{core::agent::Agent, memory::MemoryStore, providers::twitter::Twitter};
+use crate::{
+    core::agent::Agent,
+    memory::MemoryStore,
+    providers::{discord::Discord, twitter::Twitter},
+};
 
 pub struct Runtime {
     openai_api_key: String,
     twitter: Twitter,
+    discord: Discord,
     agents: Vec<Agent>,
     memory: Vec<String>,
 }
@@ -13,6 +18,7 @@ pub struct Runtime {
 impl Runtime {
     pub fn new(
         openai_api_key: &str,
+        discord_webhook_url: &str,
         twitter_consumer_key: &str,
         twitter_consumer_secret: &str,
         twitter_access_token: &str,
@@ -24,11 +30,13 @@ impl Runtime {
             twitter_access_token,
             twitter_access_token_secret,
         );
+        let discord = Discord::new(discord_webhook_url);
 
         let agents = Vec::new();
         let memory: Vec<String> = MemoryStore::load_memory().unwrap_or_else(|_| Vec::new());
 
         Runtime {
+            discord,
             memory,
             openai_api_key: openai_api_key.to_string(),
             agents,
@@ -56,6 +64,7 @@ impl Runtime {
         }
 
         println!("AI Response: {}", response);
+        self.discord.send_channel_message(&response.clone()).await;
         self.twitter.tweet(response).await?;
         Ok(())
     }
