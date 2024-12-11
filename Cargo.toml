@@ -1,0 +1,15 @@
+[package]
+name = "t"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rig-core = "0.5.0"
+tokio = { version = "1", features = ["full"] }
+mini-redis = "0.4"
+anyhow = "1.0.94"
+reqwest = "0.12.9"
+twitter-v2 = "0.1.8"
+rand = "0.8.5"
+dotenv = "0.15.0"
+serde_json = "1.0.133"
