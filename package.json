@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "dependencies": {
+    "agent-twitter-client": "^0.0.16",
+    "tough-cookie": "^4.1.2"
+  }
+}

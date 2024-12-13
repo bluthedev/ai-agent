@@ -4,12 +4,32 @@ use tokio::time::{sleep, Duration};
 use crate::{
     core::agent::Agent,
     memory::MemoryStore,
-    providers::{discord::Discord, twitter::Twitter},
+    providers::{ai16z_twitter::Ai16zTwitter, discord::Discord, twitter::Twitter},
 };
+
+pub enum TwitterType {
+    ApiKeys(Twitter),
+    Ai16zTwitter(Ai16zTwitter),
+}
+
+impl TwitterType {
+    pub async fn tweet(&self, text: &str) -> Result<(), anyhow::Error> {
+        match self {
+            TwitterType::ApiKeys(twitter) => {
+                // Call the tweet method for Twitter API
+                twitter.tweet(text.to_string()).await
+            }
+            TwitterType::Ai16zTwitter(ai6z_twitter) => {
+                // Call the tweet method for Ai6zTwitter
+                ai6z_twitter.tweet(text.to_string()).await
+            }
+        }
+    }
+}
 
 pub struct Runtime {
     openai_api_key: String,
-    twitter: Twitter,
+    twitter: TwitterType,
     discord: Discord,
     agents: Vec<Agent>,
     memory: Vec<String>,
@@ -19,17 +39,41 @@ impl Runtime {
     pub fn new(
         openai_api_key: &str,
         discord_webhook_url: &str,
-        twitter_consumer_key: &str,
-        twitter_consumer_secret: &str,
-        twitter_access_token: &str,
-        twitter_access_token_secret: &str,
+        twitter_consumer_key: Option<&str>,
+        twitter_consumer_secret: Option<&str>,
+        twitter_access_token: Option<&str>,
+        twitter_access_token_secret: Option<&str>,
+        twitter_username: Option<&str>,
+        twitter_password: Option<&str>,
     ) -> Self {
-        let twitter = Twitter::new(
-            twitter_consumer_key,
-            twitter_consumer_secret,
-            twitter_access_token,
-            twitter_access_token_secret,
-        );
+        let twitter = match (twitter_username, twitter_password) {
+            (Some(username), Some(password)) => {
+                // If both username and password are provided, prioritize Ai6zTwitter
+                TwitterType::Ai16zTwitter(Ai16zTwitter::new(username, password))
+            }
+            (_, _) => {
+                // Otherwise, fall back to Twitter API keys if available
+                match (
+                    twitter_consumer_key,
+                    twitter_consumer_secret,
+                    twitter_access_token,
+                    twitter_access_token_secret,
+                ) {
+                    (
+                        Some(consumer_key),
+                        Some(consumer_secret),
+                        Some(access_token),
+                        Some(access_token_secret),
+                    ) => TwitterType::ApiKeys(Twitter::new(
+                        consumer_key,
+                        consumer_secret,
+                        access_token,
+                        access_token_secret,
+                    )),
+                    _ => panic!("You must provide either Twitter username/password or API keys."),
+                }
+            }
+        };
         let discord = Discord::new(discord_webhook_url);
 
         let agents = Vec::new();
@@ -65,13 +109,17 @@ impl Runtime {
 
         println!("AI Response: {}", response);
         self.discord.send_channel_message(&response.clone()).await;
-        self.twitter.tweet(response).await?;
+        self.twitter.tweet(&response).await?;
         Ok(())
     }
 
     pub async fn run_periodically(&mut self) -> Result<(), anyhow::Error> {
+        let mut rng = rand::thread_rng();
+
         loop {
-            sleep(Duration::from_secs(3600)).await;
+            let random_sleep_duration = rng.gen_range(300..=1800);
+
+            sleep(Duration::from_secs(random_sleep_duration)).await;
 
             if let Err(e) = self.run().await {
                 eprintln!("Error running process: {}", e);
